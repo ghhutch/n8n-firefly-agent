@@ -1,0 +1,266 @@
+{
+  "name": "Firefly Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c30bb933-9c44-479a-a18d-24e70c223ffc",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        520,
+        0
+      ],
+      "webhookId": "be762f87-d735-4b1b-aeb1-c1a3c0e80c74"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "=You are an intelligent AI tool assistant.\n\nYour goal is to support creative directors in the creative ideation process by guiding them through the image generation process to generate visually appealing imagery from the generate image tool by doing the following:\n\n* For the first generation, use the user provided prompt from chat to generate an image using the generate image tool.\n* On subsequent interactions, act as a creative director by suggesting prompt improvements that will lead to improved results.\n* Run the generate image tool after each interaction using the user or system enhanced prompts. Ensure that each prompt that is executed by the generate image tool is different.\n* Output the image and prompt from the generate image tool to the chat window after each generation and include the enhanced prompt. \n\nDisplay the enhanced prompt and image URL in the chat after each image generation in the following format:\n* Prompt:\n  * the enhanced image generation prompt\n* Image:\n  * ![image](image_url)\\n\n* Suggestions:\n  * At least 3 descriptive prompt refinement suggestions with example prompts including the following considerations. Specificity: Adding descriptive details about subject, setting, lighting, mood, etc. Technical parameters: Suggesting camera angles, lens types, art styles, or rendering techniques. Composition: Improving layout, focal points, and visual hierarchy. Aesthetic coherence: Ensuring stylistic elements work together harmoniously. Avoiding problematic elements: Identifying aspects that might cause generation issues. For each suggestion, generate an enhanced prompt based on the suggestion.\n\nDo not modify the url.\nDo not modify \"![image]\" in the output.\nReplace image_url with the generate image tool url.\n"
+        }
+      },
+      "id": "2814b72c-b2aa-48c9-bde2-27db5f4f23d5",
+      "name": "Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1060,
+        0
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:3b",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        220
+      ],
+      "id": "c85a51de-13c7-4302-9a99-5bc8560ba567",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "sBaAG5GT5ODoRCsp",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "The generate image tool generates an image based on a prompt and returns the URL of the image.",
+        "workflowId": {
+          "__rl": true,
+          "value": "pTN9NSP9QK3bkq0C",
+          "mode": "list",
+          "cachedResultName": "Generate Firefly Image"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Prompt": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt', `The image generation prompt.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "Prompt"
+          ],
+          "schema": [
+            {
+              "id": "Prompt",
+              "displayName": "Prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        220
+      ],
+      "id": "8a7ea033-4b84-4c51-8237-e1746ed65c36",
+      "name": "Generate Image"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1140,
+        220
+      ],
+      "id": "d5389d38-8f8a-4675-aabd-fcbfa9d61603",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "513294c9-0de5-4fe4-9982-3f948e2e8a24",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        520,
+        160
+      ],
+      "id": "47a10902-258f-4fbd-9b5c-900acd730328",
+      "name": "Webhook",
+      "webhookId": "513294c9-0de5-4fe4-9982-3f948e2e8a24"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [
+        1420,
+        0
+      ],
+      "id": "cddfd37d-2272-49c2-ba90-90b62e6ee3c8",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cc37d987-c9c0-4cdd-a25b-f7fd7f85b5b8",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput || $json.body.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "a6534da5-e4d7-423e-a0e9-332fc1de9ae0",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId || $json.body.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        800,
+        40
+      ],
+      "id": "09fc7f23-8958-4a97-b887-c125c6e28dbc",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ad1bb097-d870-4585-be03-421904923137",
+  "meta": {
+    "templateId": "self-building-ai-agent",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "17f9a22369b7f32de76a825736bf4808768fcf10710ac770ec341870f4662adf"
+  },
+  "id": "WbxnoQY60Wr32eE9",
+  "tags": []
+}
