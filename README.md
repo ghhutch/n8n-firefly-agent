@@ -1,4 +1,4 @@
-# n8n Firefly Image Generation Agent
+# n8n Adobe Firefly Image Generation Agent
 This is an n8n agent that utilizes a chat input, Ollama AI model (llama3.2:3b), and Adobe Firefly Services Generate Image API to generate images and optimize prompts.  The agent acts as a creative director in coaching the user through enhancing prompts for better image generation through the Firefly Services API.
 
 DISCLAIMER: This was developed for exploratory purposes and has not been thoroughly tested.  The instructions below are high-level and may not be perfect. Please forgive me as this is exploratory.
