@@ -1,0 +1,150 @@
+{
+  "name": "Generate Firefly Image",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ims-na1.adobelogin.com/ims/token/v3",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "client_credentials"
+            },
+            {
+              "name": "client_id",
+              "value": "YOUR CLIENT ID"
+            },
+            {
+              "name": "client_secret",
+              "value": "YOUR CLIENT SECRET"
+            },
+            {
+              "name": "scope",
+              "value": "openid,AdobeID,session,additional_info,read_organizations,firefly_api,ff_apis"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "d93dfee6-e6e9-413b-a27a-f1b5053cbb46",
+      "name": "Authenticate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://firefly-api.adobe.io/v3/images/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "8ef6d0f6a4564d9a9c5463d46f521596"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.access_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "prompt",
+              "value": "={{ $('Input').item.json.Prompt }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        0
+      ],
+      "id": "98920df2-02f2-4dda-8124-d30f2f186b4b",
+      "name": "Generate Image"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Prompt"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "26d76b8a-4983-4f85-a1e9-01b2b68ecadd",
+      "name": "Input"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Authenticate": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        []
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Authenticate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4d3fb774-0ecf-4dd0-9e45-b7e0e9715daf",
+  "meta": {
+    "instanceId": "17f9a22369b7f32de76a825736bf4808768fcf10710ac770ec341870f4662adf"
+  },
+  "id": "pTN9NSP9QK3bkq0C",
+  "tags": []
+}
