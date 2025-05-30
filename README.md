@@ -18,13 +18,13 @@ Conceptual Use Case:
 1. Install n8n local
 2. Install ollama and pull the model llama3.2:b. NOTE: I found this model to be the best at executing the Generate Image Tool.
 3. Get Firefly Services API credentials from your Adobe Admin.
-4. Install Open-WebUI
+4. Optionally, install Open-WebUI if you want to run a local chat interface.
 5. Install the Open-WebUI [n8n_pipe from Cole Medin](https://openwebui.com/f/coleam/n8n_pipe)
 
 ## Setup
 1. Download the n8n_firefly_agent.json and n8n_generate_firefly_image.json
 2. In n8n, create a new workflow
-3. Click ... > Import From FIle > Choose the n8n_generate_firefly_image.json
+3. Click ... > Import From File > Choose the n8n_generate_firefly_image.json
 4. Edit the Authentiate step
 5. Enter your client_id and client_secret
 6. Enter the name "Generate Firefly Image"
@@ -32,8 +32,8 @@ Conceptual Use Case:
 8. Activate
 9. Create a new workflow.
 10. Click ... > Import From File > Choose the n8n_firefly_agent.json
-11. Click Save
-12. Activate and copy the webhook URL
+11. Click Save. You can now test the workflow in n8n's chat.
+12. If using Open-Webui complete the following steps, activate the Firefly Agent workflow and copy the webhook URL.
 13. In Open-WebUI go to Admin Settings > Functions
 14. Create the n8n_pipe function.
 15. Configure the valve settings and paste your webhook url. NOTE: Sometimes accessing n8n from open-webui can be tricky. I installed n8n using docker desktop, went into the container Exec area and ran the command "hostname -i" to get the IP of the n8n instance for the n8n host.
